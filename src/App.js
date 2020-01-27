@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
+import debounce from "lodash.debounce";
 
 let page_number;
 let total;
@@ -33,10 +34,11 @@ function App() {
           updateIsLoading(false);
         })
         .catch(err => updateErrorLoading(true));
-    }, 500);
+    }, 300);
   };
 
-  window.onscroll = () => {
+  window.onscroll = debounce(() => {
+    updateIsLoading(true);
     if (
       window.innerHeight + document.documentElement.scrollTop ===
       document.documentElement.offsetHeight
@@ -46,10 +48,10 @@ function App() {
         updateEnded(true);
         return;
       }
-      updateIsLoading(true);
+
       loadItems(page_number);
     }
-  };
+  }, 100);
 
   return (
     <div className="App">
@@ -63,16 +65,16 @@ function App() {
                 className="item"
                 style={{ background: item.color }}
               >
-                {item.name}
+                {`${item.id}. ${item.name}(${item.year})`}
               </div>
             );
           })}
-          {errorLoading ? (
-            <div>Can't fetch data</div>
+          {errorLoading ? <div>Can't fetch data</div> : null}
+          {hasEnded ? (
+            <div>No more items!</div>
           ) : isLoading ? (
             <div>loading...</div>
           ) : null}
-          {hasEnded ? <div>No more items!</div> : null}
         </>
       </header>
     </div>
